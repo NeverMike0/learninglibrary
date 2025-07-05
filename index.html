@@ -2,49 +2,94 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>我的 YouTube 搜尋網站</title>
+  <title>YouTube 多影片展示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .video-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .video-grid iframe {
+      width: 300px;
+      height: 170px;
+    }
+    #mainPlayer {
+      width: 640px;
+      height: 360px;
+      margin-bottom: 10px;
+    }
+    #videoList {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    .videoItem {
+      cursor: pointer;
+      margin: 5px 0;
+      padding: 4px;
+      border-bottom: 1px solid #eee;
+    }
+    .videoItem:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
-  <h1>固定嵌入的影片</h1>
-  <!-- 這是固定的影片，可改 ID -->
-  <iframe width="560" height="315"
-          src="https://www.youtube.com/embed/Vd-vErlQPPk"
-          frameborder="0" allowfullscreen></iframe>
+
+  <h1>固定的 YouTube 影片</h1>
+  <div class="video-grid">
+    <iframe src="https://www.youtube.com/embed/影片ID1" frameborder="0" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/影片ID2" frameborder="0" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/影片ID3" frameborder="0" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/影片ID4" frameborder="0" allowfullscreen></iframe>
+  </div>
 
   <h2>搜尋 YouTube 影片</h2>
   <input type="text" id="searchInput" placeholder="輸入關鍵字">
   <button onclick="searchVideos()">搜尋</button>
 
-  <div id="results" style="margin-top: 20px;"></div>
+  <h3>主播放器</h3>
+  <iframe id="mainPlayer" src="" frameborder="0" allowfullscreen></iframe>
+
+  <h3>搜尋結果清單</h3>
+  <div id="videoList"></div>
 
   <script>
     async function searchVideos() {
       const query = document.getElementById('searchInput').value;
-      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // 👈 請改成你自己的 YouTube API 金鑰
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`;
+      const apiKey = 'YOUR_API_KEY'; // <<<<<< 請放上你自己的 API 金鑰
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=30&key=${apiKey}`);
+      const data = await res.json();
+      const videoList = document.getElementById('videoList');
+      const mainPlayer = document.getElementById('mainPlayer');
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '';
+      videoList.innerHTML = '';
 
-        data.items.forEach(item => {
-          const videoId = item.id.videoId;
-          const iframe = document.createElement('iframe');
-          iframe.width = 320;
-          iframe.height = 180;
-          iframe.src = `https://www.youtube.com/embed/${videoId}`;
-          iframe.frameBorder = 0;
-          iframe.allowFullscreen = true;
-          iframe.style.margin = '10px';
-          resultsDiv.appendChild(iframe);
-        });
-      } catch (err) {
-        alert("發生錯誤，請檢查 API 金鑰或網路連線");
-        console.error(err);
+      if (data.items.length > 0) {
+        // 自動播放第一部影片
+        const firstVideoId = data.items[0].id.videoId;
+        mainPlayer.src = `https://www.youtube.com/embed/${firstVideoId}`;
       }
+
+      data.items.forEach(item => {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const div = document.createElement('div');
+        div.className = 'videoItem';
+        div.innerText = title;
+        div.onclick = () => {
+          mainPlayer.src = `https://www.youtube.com/embed/${videoId}`;
+        };
+        videoList.appendChild(div);
+      });
     }
   </script>
+
 </body>
 </html>
