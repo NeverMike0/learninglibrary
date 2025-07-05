@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>我的 YouTube 搜尋網站</title>
+</head>
+<body>
+  <h1>固定嵌入的影片</h1>
+  <!-- 這是固定的影片，可改 ID -->
+  <iframe width="560" height="315"
+          src="https://www.youtube.com/embed/Vd-vErlQPPk"
+          frameborder="0" allowfullscreen></iframe>
+
+  <h2>搜尋 YouTube 影片</h2>
+  <input type="text" id="searchInput" placeholder="輸入關鍵字">
+  <button onclick="searchVideos()">搜尋</button>
+
+  <div id="results" style="margin-top: 20px;"></div>
+
+  <script>
+    async function searchVideos() {
+      const query = document.getElementById('searchInput').value;
+      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // 👈 請改成你自己的 YouTube API 金鑰
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
+
+        data.items.forEach(item => {
+          const videoId = item.id.videoId;
+          const iframe = document.createElement('iframe');
+          iframe.width = 320;
+          iframe.height = 180;
+          iframe.src = `https://www.youtube.com/embed/${videoId}`;
+          iframe.frameBorder = 0;
+          iframe.allowFullscreen = true;
+          iframe.style.margin = '10px';
+          resultsDiv.appendChild(iframe);
+        });
+      } catch (err) {
+        alert("發生錯誤，請檢查 API 金鑰或網路連線");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
