@@ -63,7 +63,7 @@
   <script>
     async function searchVideos() {
       const query = document.getElementById('searchInput').value;
-      const apiKey = 'YOUR_API_KEY'; // <<<<<< 請放上你自己的 API 金鑰
+      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // <<<<<< 請放上你自己的 API 金鑰
       const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=30&key=${apiKey}`);
       const data = await res.json();
       const videoList = document.getElementById('videoList');
