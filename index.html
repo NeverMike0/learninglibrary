@@ -2,15 +2,11 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube 播放器</title>
+  <title>YouTube 播放器（含預覽圖）</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-    }
-
-    h1, h2 {
-      margin-top: 30px;
     }
 
     .video-grid {
@@ -50,20 +46,33 @@
       flex: 1;
       max-height: 360px;
       overflow-y: auto;
-      width: 300px;
-      border-left: 1px solid #ddd;
-      padding-left: 10px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .videoItem {
       cursor: pointer;
-      margin: 5px 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ddd;
       padding: 5px;
-      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
     }
 
     .videoItem:hover {
       background-color: #f0f0f0;
+    }
+
+    .videoItem img {
+      width: 100%;
+      height: auto;
+    }
+
+    .videoItem span {
+      font-size: 14px;
+      margin-top: 5px;
     }
   </style>
 </head>
@@ -107,22 +116,30 @@
         return;
       }
 
-      // 撥放第一支影片
+      // 播放第一支影片
       const firstVideoId = data.items[0].id.videoId;
       mainPlayer.src = `https://www.youtube.com/embed/${firstVideoId}?autoplay=1`;
 
-      // 建立清單
+      // 建立預覽圖清單
       data.items.forEach(item => {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
+        const thumbnailUrl = item.snippet.thumbnails.medium.url;
 
         const div = document.createElement('div');
         div.className = 'videoItem';
-        div.textContent = title;
         div.onclick = () => {
           mainPlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
         };
 
+        const img = document.createElement('img');
+        img.src = thumbnailUrl;
+
+        const caption = document.createElement('span');
+        caption.textContent = title;
+
+        div.appendChild(img);
+        div.appendChild(caption);
         videoList.appendChild(div);
       });
     }
