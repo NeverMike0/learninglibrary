@@ -2,60 +2,27 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube 播放與搜尋清單</title>
+  <title>YouTube 播放器</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
     }
-
-    h1, h2 {
-      margin-top: 30px;
-    }
-
     .video-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
-
     .video-grid iframe {
       width: 300px;
       height: 170px;
     }
-
-    .search-section {
-      display: flex;
-      gap: 20px;
-      margin-top: 30px;
-    }
-
     #mainPlayer {
-      flex: 2;
       width: 100%;
-      height: 360px;
       max-width: 800px;
-    }
-
-    #videoList {
-      flex: 1;
-      max-height: 360px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 10px;
-      width: 300px;
-      box-sizing: border-box;
-    }
-
-    .videoItem {
-      cursor: pointer;
-      margin: 6px 0;
-      padding: 4px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .videoItem:hover {
-      background-color: #f0f0f0;
+      height: 450px;
+      display: block;
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -73,42 +40,40 @@
   <input type="text" id="searchInput" placeholder="輸入關鍵字">
   <button onclick="searchVideos()">搜尋</button>
 
-  <div class="search-section">
-    <iframe id="mainPlayer" src="" frameborder="0" allowfullscreen></iframe>
-    <div id="videoList"></div>
-  </div>
+  <iframe id="mainPlayer" src="" frameborder="0" allowfullscreen></iframe>
 
   <script>
+    let videoQueue = [];
+    let currentIndex = 0;
+
     async function searchVideos() {
       const query = document.getElementById('searchInput').value;
-      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // ← 替換為你自己的 API 金鑰
-      const maxResults = 30;
-
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=${maxResults}&key=${apiKey}`);
+      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // 替換為你自己的 API 金鑰
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=30&key=${apiKey}`);
       const data = await res.json();
 
-      const videoList = document.getElementById('videoList');
-      const mainPlayer = document.getElementById('mainPlayer');
+      videoQueue = data.items.map(item => item.id.videoId);
+      currentIndex = 0;
 
-      videoList.innerHTML = '';
-
-      if (data.items.length > 0) {
-        const firstVideoId = data.items[0].id.videoId;
-        mainPlayer.src = `https://www.youtube.com/embed/${firstVideoId}`;
+      if (videoQueue.length > 0) {
+        playCurrentVideo();
       }
-
-      data.items.forEach(item => {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-        const div = document.createElement('div');
-        div.className = 'videoItem';
-        div.textContent = title;
-        div.onclick = () => {
-          mainPlayer.src = `https://www.youtube.com/embed/${videoId}`;
-        };
-        videoList.appendChild(div);
-      });
     }
+
+    function playCurrentVideo() {
+      const videoId = videoQueue[currentIndex];
+      const mainPlayer = document.getElementById('mainPlayer');
+      mainPlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        if (currentIndex < videoQueue.length - 1) {
+          currentIndex++;
+          playCurrentVideo();
+        }
+      }
+    });
   </script>
 
 </body>
