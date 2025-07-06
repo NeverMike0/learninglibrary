@@ -2,26 +2,44 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube 播放器（含預覽圖）</title>
+  <title> 機構傳動 </title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      margin: 0;
     }
 
-    .video-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .video-grid iframe {
-      width: 300px;
-      height: 170px;
-    }
-
-    .search-container {
+    h1, h2 {
       margin-top: 30px;
+    }
+
+    /* 每支影片單獨一列 */
+    .video-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .video-wrapper {
+      width: 100%;
+    }
+
+    .video-wrapper iframe {
+      width: 100%;
+      height: 400px;
+    }
+
+    .video-title {
+      text-align: center;
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    /* 搜尋功能區 */
+    .search-container {
+      margin-top: 50px;
     }
 
     .player-section {
@@ -32,6 +50,7 @@
       overflow: auto;
       border: 1px solid #ccc;
       padding: 10px;
+      min-height: 400px;
     }
 
     #mainPlayer {
@@ -39,12 +58,12 @@
       min-width: 320px;
       min-height: 200px;
       width: 100%;
-      height: 360px;
+      height: 400px;
     }
 
     #videoList {
       flex: 1;
-      max-height: 360px;
+      max-height: 100%;
       overflow-y: auto;
       width: 320px;
       display: flex;
@@ -78,15 +97,26 @@
 </head>
 <body>
 
-  <h1>固定的 4 支 YouTube 影片</h1>
-  <div class="video-grid">
-    <iframe src="https://www.youtube.com/embed/影片ID1" frameborder="0" allowfullscreen></iframe>
-    <iframe src="https://www.youtube.com/embed/影片ID2" frameborder="0" allowfullscreen></iframe>
-    <iframe src="https://www.youtube.com/embed/影片ID3" frameborder="0" allowfullscreen></iframe>
-    <iframe src="https://www.youtube.com/embed/影片ID4" frameborder="0" allowfullscreen></iframe>
+  <h1> Video Show </h1>
+  <div class="video-column">
+    <div class="video-wrapper">
+      <iframe src="https://www.youtube.com/embed/Vd-vErlQPPk" frameborder="0" allowfullscreen></iframe>
+      <div class="video-title">Knuckle joint press</div>
+    </div>
+    <div class="video-wrapper">
+      <iframe src="https://www.youtube.com/embed/SnVo3Zg83Pk" frameborder="0" allowfullscreen></iframe>
+      <div class="video-title">Wall mounted car shed</div>
+    </div>
+    <div class="video-wrapper">
+      <iframe src="https://www.youtube.com/embed/OOvHVrci33U" frameborder="0" allowfullscreen></iframe>
+      <div class="video-title">Gravity loaded latch</div>
+    </div>
+    <div class="video-wrapper">
+      <iframe src="https://www.youtube.com/embed/GUXGLGA_6Lc" frameborder="0" allowfullscreen></iframe>
+      <div class="video-title">Motorized flush door 3</div>
+    </div>
   </div>
 
-  <h2>搜尋 YouTube 影片</h2>
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="輸入關鍵字">
     <button onclick="searchVideos()">搜尋</button>
@@ -100,7 +130,7 @@
   <script>
     async function searchVideos() {
       const query = document.getElementById('searchInput').value;
-      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // ← 請替換成你自己的 API Key
+      const apiKey = 'AIzaSyA13lorOeOoilTpKAwqaSj4w6X8A1rZtEI'; // ← 請換成你自己的 API 金鑰
       const maxResults = 30;
 
       const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=${maxResults}&key=${apiKey}`);
@@ -116,11 +146,9 @@
         return;
       }
 
-      // 播放第一支影片
       const firstVideoId = data.items[0].id.videoId;
       mainPlayer.src = `https://www.youtube.com/embed/${firstVideoId}?autoplay=1`;
 
-      // 建立預覽圖清單
       data.items.forEach(item => {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
